@@ -3,236 +3,209 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>네이버 시계 스타일 시간 조절 학습기</title>
+    <title>네이버 시계 클론</title>
     <style>
+        /* 1. 전체 레이아웃 리셋 및 배경 설정 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Malgun Gothic", Dotum, sans-serif;
+        }
         body {
-            font-family: 'Malgun Gothic', sans-serif;
             background-color: #f5f6f7;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
-            margin: 0;
+            min-height: 100vh;
         }
 
+        /* 2. 네이버 스타일 시계 컨테이너 */
         .clock-container {
             background-color: #ffffff;
-            border: 1px solid #e5e5e5;
+            border: 1px solid #e4e8eb;
             border-radius: 8px;
-            padding: 30px;
+            padding: 30px 40px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             text-align: center;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
             width: 400px;
         }
 
+        /* 네이버 로고 스타일 */
         .logo {
-            font-size: 24px;
-            font-weight: bold;
-            color: #03c75a; /* 네이버 시그니처 그린 */
-            margin-bottom: 20px;
+            font-size: 22px;
+            font-weight: 900;
+            color: #03cf5d; /* 네이버 시그니처 그린 */
+            margin-bottom: 5px;
+            letter-spacing: -1px;
+        }
+        .title {
+            font-size: 14px;
+            color: #777;
+            margin-bottom: 25px;
         }
 
+        /* 3. 날짜 및 시간 표시 영역 */
         .date-display {
-            font-size: 18px;
-            color: #666;
+            font-size: 16px;
+            color: #202020;
             margin-bottom: 10px;
+            font-weight: 500;
         }
-
         .time-display {
             font-size: 42px;
             font-weight: bold;
-            color: #111;
-            font-variant-numeric: tabular-nums; /* 숫자 폭 고정 */
-            margin-bottom: 30px;
+            color: #03cf5d;
+            font-family: 'Courier New', Courier, monospace; /* 숫자가 움직여도 가로폭 고정 */
+            letter-spacing: 1px;
+            background-color: #f9f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #eee;
         }
 
+        /* 4. 시간 조정 컨트롤러 영역 */
         .control-panel {
-            border-top: 1px solid #eee;
+            margin-top: 25px;
             padding-top: 20px;
+            border-top: 1px dashed #e4e8eb;
             text-align: left;
         }
-
-        .control-panel h3 {
-            font-size: 14px;
+        .control-title {
+            font-size: 13px;
+            font-weight: bold;
             color: #333;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
-
         .input-group {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .input-field {
             display: flex;
-            flex-direction: column;
+            gap: 5px;
+            margin-bottom: 10px;
         }
-
-        .input-field label {
-            font-size: 11px;
-            color: #888;
-            margin-bottom: 5px;
-        }
-
-        .input-field input {
+        .input-group input {
+            width: 100%;
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
             font-size: 14px;
-            text-align: center;
         }
-
-        .btn-submit {
-            width: 100%;
-            background-color: #03c75a;
-            color: white;
+        .btn-group {
+            display: flex;
+            gap: 5px;
+        }
+        .btn {
+            flex: 1;
+            padding: 8px;
             border: none;
-            padding: 10px;
-            font-size: 15px;
-            font-weight: bold;
             border-radius: 4px;
+            font-size: 13px;
+            font-weight: bold;
             cursor: pointer;
-            transition: background-color 0.2s;
         }
-
-        .btn-submit:hover {
-            background-color: #02a84c;
+        .btn-apply {
+            background-color: #03cf5d;
+            color: white;
         }
-
+        .btn-apply:hover { background-color: #02b852; }
         .btn-reset {
-            width: 100%;
             background-color: #777;
             color: white;
-            border: none;
-            padding: 8px;
-            font-size: 13px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 8px;
         }
+        .btn-reset:hover { background-color: #666; }
     </style>
 </head>
 <body>
 
-<div class="clock-container">
-    <div class="logo">NAVER 시계 스타일</div>
-    
-    <div id="dateDisplay" class="date-display">0000년 00월 00일 (일)</div>
-    <div id="timeDisplay" class="time-display">00:00:00</div>
-
-    <div class="control-panel">
-        <h3>⏱️ 시간/날짜 지정하기</h3>
+    <div class="clock-container">
+        <div class="logo">NAVER</div>
+        <div class="title">시계 클론</div>
         
-        <div class="input-group">
-            <div class="input-field">
-                <label>년 (YYYY)</label>
-                <input type="number" id="inputYear" placeholder="2026">
+        <div class="date-display" id="dateDisplay">0000년 00월 00일 (요일)</div>
+        <div class="time-display" id="timeDisplay">00:00:00</div>
+
+        <div class="control-panel">
+            <div class="control-title">⏱ 시간 조정하기</div>
+            <div class="input-group">
+                <input type="datetime-local" id="timeInput">
             </div>
-            <div class="input-field">
-                <label>월 (MM)</label>
-                <input type="number" id="inputMonth" min="1" max="12" placeholder="5">
-            </div>
-            <div class="input-field">
-                <label>일 (DD)</label>
-                <input type="number" id="inputDay" min="1" max="31" placeholder="17">
+            <div class="btn-group">
+                <button class="btn btn-apply" onclick="applyCustomTime()">설정 적용</button>
+                <button class="btn btn-reset" onclick="resetToCurrentTime()">현재시간 리셋</button>
             </div>
         </div>
-
-        <div class="input-group">
-            <div class="input-field">
-                <label>시 (24h)</label>
-                <input type="number" id="inputHour" min="0" max="23" placeholder="21">
-            </div>
-            <div class="input-field">
-                <label>분 (MM)</label>
-                <input type="number" id="inputMin" min="0" max="59" placeholder="00">
-            </div>
-            <div class="input-field">
-                <label>초 (SS)</label>
-                <input type="number" id="inputSec" min="0" max="59" placeholder="00">
-            </div>
-        </div>
-
-        <button class="btn-submit" onclick="adjustTime()">시간 적용하기</button>
-        <button class="btn-reset" onclick="resetToCurrentTime()">현재 시간으로 리셋</button>
     </div>
-</div>
 
-<script>
-    // 1. 기준이 되는 핵심 Date 객체 선언
-    let baseTime = new Date(); 
+    <script>
+        // 시간을 흐르게 만들기 위한 전역 변수
+        let timeOffset = 0; // PC 현재 시간과 사용자 설정 시간의 차이(밀리초)
+        let useCustomTime = false; // 사용자가 커스텀 시간을 적용 중인지 여부
 
-    // 요일 배열
-    const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
+        // 1자리 숫자를 2자리 숫자 문자열로 바꿔주는 함수 (예: 9 -> "09")
+        function padZero(num) {
+            return String(num).padStart(2, '0');
+        }
 
-    // 2. 숫자를 두 자리 문자열로 맞춰주는 함수 (예: 9 -> "09")
-    function padZero(num) {
-        return num.toString().padStart(2, '0');
-    }
+        // 화면에 날짜와 시간을 업데이트하는 핵심 함수
+        function updateClock() {
+            // 기준이 되는 기본 현재 시간
+            let targetTime = new Date();
 
-    // 3. 화면의 시계를 업데이트하는 함수
-    function updateClockDisplay() {
-        const year = baseTime.getFullYear();
-        const month = padZero(baseTime.getMonth() + 1); // 월은 0부터 시작하므로 +1
-        const date = padZero(baseTime.getDate());
-        const day = weekDays[baseTime.getDay()];
+            // 만약 사용자가 시간을 변경했다면, 그 차이값(offset)을 더해서 기준 시간을 계산
+            if (useCustomTime) {
+                targetTime = new Date(Date.now() + timeOffset);
+            }
 
-        const hours = padZero(baseTime.getHours());
-        const minutes = padZero(baseTime.getMinutes());
-        const seconds = padZero(baseTime.getSeconds());
+            // 년, 월, 일, 요일 추출
+            const year = targetTime.getFullYear();
+            const month = padZero(targetTime.getMonth() + 1); // 월은 0부터 시작하므로 +1
+            const date = padZero(targetTime.getDate());
+            
+            const dayList = ['일', '월', '화', '수', '목', '금', '토'];
+            const day = dayList[targetTime.getDay()];
 
-        // HTML 텍스트 변경
-        document.getElementById('dateDisplay').innerText = `${year}년 ${month}월 ${date}일 (${day})`;
-        document.getElementById('timeDisplay').innerText = `${hours}:${minutes}:${seconds}`;
-    }
+            // 시, 분, 초 추출
+            const hours = padZero(targetTime.getHours());
+            const minutes = padZero(targetTime.getMinutes());
+            const seconds = padZero(targetTime.getSeconds());
 
-    // 4. 1초마다 baseTime에 1초씩 더하고 화면을 갱신하는 타이머
-    setInterval(() => {
-        baseTime.setSeconds(baseTime.getSeconds() + 1);
-        updateClockDisplay();
-    }, 1000);
+            // DOM 객체에 텍스트 대입 (화면 갱신)
+            document.getElementById('dateDisplay').textContent = `${year}년 ${month}월 ${date}일 (${day}요일)`;
+            document.getElementById('timeDisplay').textContent = `${hours}:${minutes}:${seconds}`;
+        }
 
-    // 5. [시간 적용하기] 버튼 클릭 시 사용자가 입력한 숫자로 baseTime을 변경하는 함수
-    function adjustTime() {
-        // 입력값을 가져옴 (값이 없으면 현재 baseTime의 값을 유지하도록 대입)
-        const newYear = document.getElementById('inputYear').value ? parseInt(document.getElementById('inputYear').value) : baseTime.getFullYear();
-        const newMonth = document.getElementById('inputMonth').value ? parseInt(document.getElementById('inputMonth').value) - 1 : baseTime.getMonth(); // Date 객체 월 계산을 위해 -1
-        const newDay = document.getElementById('inputDay').value ? parseInt(document.getElementById('inputDay').value) : baseTime.getDate();
-        
-        const newHour = document.getElementById('inputHour').value ? parseInt(document.getElementById('inputHour').value) : baseTime.getHours();
-        const newMin = document.getElementById('inputMin').value ? parseInt(document.getElementById('inputMin').value) : baseTime.getMinutes();
-        const newSec = document.getElementById('inputSec').value ? parseInt(document.getElementById('inputSec').value) : baseTime.getSeconds();
+        // 사용자가 입력한 시간으로 시계를 고정하고 흐르게 만드는 함수
+        function applyCustomTime() {
+            const inputVal = document.getElementById('timeInput').value;
+            
+            if (!inputVal) {
+                alert("조정할 날짜와 시간을 입력해주세요.");
+                return;
+            }
 
-        // baseTime 객체의 날짜와 시간 정보를 한번에 설정
-        baseTime.setFullYear(newYear, newMonth, newDay);
-        baseTime.setHours(newHour, newMin, newSec);
+            const userSelectedTime = new Date(inputVal); // 사용자가 인풋창에 선택한 시간 객체 생성
+            const actualCurrentTime = new Date();        // 실제 현재 물리 시간
 
-        // 변경된 시간을 화면에 즉시 반영
-        updateClockDisplay();
-        
-        alert("시간이 성공적으로 조정되었습니다! 변경된 시간부터 다시 흐릅니다.");
-    }
+            // 핵심 로직: 실제 시간과 유저가 바꾼 시간의 '차이값'을 구함
+            timeOffset = userSelectedTime.getTime() - actualCurrentTime.getTime();
+            useCustomTime = true; // 커스텀 모드 활성화
 
-    // 6. [현재 시간으로 리셋] 실제 PC의 현재 시간으로 되돌리기
-    function resetToCurrentTime() {
-        baseTime = new Date();
-        updateClockDisplay();
-        
-        // 입력창 비우기
-        document.getElementById('inputYear').value = '';
-        document.getElementById('inputMonth').value = '';
-        document.getElementById('inputDay').value = '';
-        document.getElementById('inputHour').value = '';
-        document.getElementById('inputMin').value = '';
-        document.getElementById('inputSec').value = '';
-    }
+            updateClock(); // 즉시 화면 반영
+        }
 
-    // 페이지가 처음 열렸을 때 최초 1회 실행하여 시계 초기화
-    updateClockDisplay();
-</script>
+        // 다시 실제 현재 시간으로 되돌리는 함수
+        function resetToCurrentTime() {
+            useCustomTime = false;
+            timeOffset = 0;
+            document.getElementById('timeInput').value = ''; // 입력창 비우기
+            updateClock(); // 즉시 화면 반영
+        }
 
+        // 1초(1000밀리초)마다 주기적으로 updateClock 함수를 실행하여 시계를 작동시킴
+        setInterval(updateClock, 1000);
+
+        // 페이지가 처음 로드될 때도 지연 없이 즉시 시간을 띄우기 위해 한 번 실행
+        updateClock();
+    </script>
 </body>
 </html>
