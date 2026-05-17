@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>네이버 시계 스타일</title>
+    <title>네이버 통합검색 시계 완벽 이식</title>
     <style>
+        /* 네이버 실제 사용 폰트 스택 및 배경 환경 이식 */
         body {
             margin: 0;
             padding: 0;
@@ -13,38 +14,42 @@
             align-items: center;
             height: 100vh;
             background-color: #f4f6fa;
-            font-family: -apple-system, BlinkMacSystemFont, "Malgun Gothic", Dotum, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Malgun Gothic", "맑은 고딕", helvetica, "Apple SD Gothic Neo", sans-serif;
+            -webkit-font-smoothing: antialiased;
         }
 
-        .clock-container {
+        /* 네이버 검색창 내 시계 카드 레이아웃 및 여백 완벽 배치 */
+        .naver-clock-box {
             display: flex;
             flex-direction: column;
             align-items: center;
             background: #ffffff;
-            border: 1px solid #e3e5e9;
-            border-radius: 12px;
-            padding: 30px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            width: 320px;
+            border: 1px solid #ebecef;
+            border-radius: 6px;
+            padding: 34px 40px 30px 40px;
+            box-shadow: 0 2px 8px 0 rgba(0,0,0,0.04);
+            width: 280px;
+            box-sizing: border-box;
         }
 
-        /* 아날로그 시계 판 */
-        .analog-clock {
+        /* 아날로그 시계 프레임 (네이버 고유 비율 및 그린 컬러) */
+        .analog-dial {
             position: relative;
-            width: 200px;
-            height: 200px;
-            border: 10px solid #03c75a; /* 네이버 시그니처 그린 */
+            width: 176px;
+            height: 176px;
+            border: 5px solid #03c75a; /* 네이버 시그니처 그린 공식 컬러 */
             border-radius: 50%;
             background: #ffffff;
-            margin-bottom: 25px;
+            margin-bottom: 22px;
+            box-sizing: border-box;
         }
 
-        /* 시계 중심점 */
-        .analog-clock::after {
+        /* 중앙 고정 핀 데코레이션 */
+        .analog-dial::after {
             content: '';
             position: absolute;
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             background: #202020;
             border-radius: 50%;
             top: 50%;
@@ -53,139 +58,159 @@
             z-index: 10;
         }
 
-        /* 시계 바늘 공통 */
+        /* 시계 바늘 메커니즘용 공통 축 설정 */
         .hand {
             position: absolute;
             bottom: 50%;
             left: 50%;
             transform-origin: bottom center;
-            border-radius: 4px;
-            transition: transform 0.05s linear; /* 부드러운 움직임을 위한 처리 */
+            border-radius: 2px;
+            will-change: transform; /* 브라우저 렌더링 최적화 (버벅임 방지) */
         }
 
-        /* 시침 */
+        /* 네이버 시계 바늘 두께 및 길이 비율 배치 */
         .hour-hand {
-            width: 6px;
-            height: 50px;
+            width: 4px;
+            height: 42px;
             background-color: #202020;
-            margin-left: -3px;
+            margin-left: -2px;
             z-index: 5;
         }
 
-        /* 분침 */
         .minute-hand {
-            width: 4px;
-            height: 75px;
+            width: 3px;
+            height: 62px;
             background-color: #202020;
-            margin-left: -2px;
+            margin-left: -1.5px;
             z-index: 6;
         }
 
-        /* 초침 (네이버 특유의 얇고 붉은/오렌지 계열 초침 또는 그린) */
+        /* 부드럽게 굴러가는 붉은색 초침 */
         .second-hand {
-            width: 2px;
-            height: 85px;
+            width: 1.5px;
+            height: 70px;
             background-color: #ff4f4f;
-            margin-left: -1px;
+            margin-left: -0.75px;
             z-index: 7;
         }
 
-        /* 디지털 정보 영역 */
-        .digital-info {
+        /* 하단 디지털 텍스트 배치 및 폰트 스타일 */
+        .digital-zone {
             text-align: center;
+            width: 100%;
         }
 
-        .date-display {
-            font-size: 14px;
+        /* 날짜 영역 (회색 톤, 자간 처리) */
+        .date-text {
+            font-size: 13px;
             color: #777777;
-            margin-bottom: 5px;
             font-weight: 500;
+            line-height: 16px;
+            letter-spacing: -0.3px;
+            margin-bottom: 6px;
         }
 
-        .time-display {
-            font-size: 32px;
-            font-weight: bold;
+        /* 시간 영역 (볼드 폰트 및 고정폭 배치로 숫자가 바뀔 때 흔들림 방지) */
+        .time-text {
+            font-size: 30px;
+            font-weight: 700;
             color: #101010;
-            letter-spacing: -1px;
+            line-height: 36px;
+            letter-spacing: -0.5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        .am-pm {
-            font-size: 18px;
-            font-weight: normal;
+        /* 오전/오후 텍스트만 네이버 그린 컬러 적용 */
+        .meridiem {
+            font-size: 16px;
+            font-weight: 500;
             color: #03c75a;
-            margin-right: 5px;
+            margin-right: 6px;
+            position: relative;
+            top: -1px; /* 미세한 수직 정렬 맞춤 */
+        }
+
+        /* 숫자가 굴러갈 때 텍스트 너비 변화로 가로가 들쭉날쭉해지는 현상 방지 고정 */
+        .numbers {
+            font-variant-numeric: tabular-nums;
         }
     </style>
 </head>
 <body>
 
-<div class="clock-container">
-    <div class="analog-clock">
-        <div class="hand hour-hand" id="hourHand"></div>
-        <div class="hand minute-hand" id="minHand"></div>
-        <div class="hand second-hand" id="secHand"></div>
+<div class="naver-clock-box">
+    <!-- 1. 아날로그 영역 -->
+    <div class="analog-dial">
+        <div class="hand hour-hand" id="hour"></div>
+        <div class="hand minute-hand" id="minute"></div>
+        <div class="hand second-hand" id="second"></div>
     </div>
 
-    <div class="digital-info">
-        <div class="date-display" id="dateDisplay">2026. 05. 17. (일)</div>
-        <div class="time-display">
-            <span class="am-pm" id="amPmDisplay">오후</span><span id="timeDisplay">09:30:00</span>
+    <!-- 2. 디지털 영역 -->
+    <div class="digital-zone">
+        <div class="date-text" id="dateCard"></div>
+        <div class="time-text">
+            <span class="meridiem" id="ampmCard"></span>
+            <span class="numbers" id="timeCard"></span>
         </div>
     </div>
 </div>
 
 <script>
-    const hourHand = document.getElementById('hourHand');
-    const minHand = document.getElementById('minHand');
-    const secHand = document.getElementById('secHand');
+    const hourEl = document.getElementById('hour');
+    const minEl = document.getElementById('minute');
+    const secEl = document.getElementById('second');
     
-    const dateDisplay = document.getElementById('dateDisplay');
-    const amPmDisplay = document.getElementById('amPmDisplay');
-    const timeDisplay = document.getElementById('timeDisplay');
+    const dateCard = document.getElementById('dateCard');
+    const ampmCard = document.getElementById('ampmCard');
+    const timeCard = document.getElementById('timeCard');
 
-    function updateClock() {
+    function renderNaverClock() {
         const now = new Date();
         
-        // 현재 시간 데이터 추출
-        const hours = now.getHours();
-        const minutes = now.getMinutes();
-        const seconds = now.getSeconds();
-        const milliseconds = now.getMilliseconds();
+        const hrs = now.getHours();
+        const mins = now.getMinutes();
+        const secs = now.getSeconds();
+        const ms = now.getMilliseconds(); // 굴러가는 메커니즘의 핵심 (밀리초 단위 계산)
 
-        // 1. 아날로그 시계 바늘 각도 계산 (밀리초를 더해 끊기지 않고 부드럽게 흐르도록 설정)
-        const secAngle = (seconds * 6) + (milliseconds * 0.006);
-        const minAngle = (minutes * 6) + (seconds * 0.1);
-        const hourAngle = ((hours % 12) * 30) + (minutes * 0.5);
+        // [굴러가는 메커니즘] 
+        // 초침: 1초(6도)를 1000밀리초로 나누어 매끄럽게 흐르듯 움직임
+        // 분침/시침도 초와 밀리초의 진행도에 따라 미세하게 실시간 궤도를 수정함
+        const secDeg = (secs * 6) + (ms * 0.006);
+        const minDeg = (mins * 6) + (secs * 0.1) + (ms * 0.0001);
+        const hourDeg = ((hrs % 12) * 30) + (mins * 0.5) + (secs * 0.0083);
 
-        hourHand.style.transform = `translateX(-50%) rotate(${hourAngle}deg)`;
-        minHand.style.transform = `translateX(-50%) rotate(${minAngle}deg)`;
-        secHand.style.transform = `translateX(-50%) rotate(${secAngle}deg)`;
+        // 회전 각도 실시간 주입
+        hourEl.style.transform = `rotate(${hourDeg}deg)`;
+        minEl.style.transform = `rotate(${minDeg}deg)`;
+        secEl.style.transform = `rotate(${secDeg}deg)`;
 
-        // 2. 디지털 날짜 표시 정보
+        // 디지털 날짜 매핑 (네이버 포맷: YYYY. MM. DD. (요일))
         const year = now.getFullYear();
         const month = String(now.getMonth() + 1).padStart(2, '0');
         const date = String(now.getDate()).padStart(2, '0');
+        const dayArr = ['일', '월', '화', '수', '목', '금', '토'];
+        const dayName = dayArr[now.getDay()];
         
-        const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
-        const dayOfWeek = weekDays[now.getDay()];
-        
-        dateDisplay.textContent = `${year}. ${month}. ${date}. (${dayOfWeek})`;
+        dateCard.textContent = `${year}. ${month}. ${date}. (${dayName})`;
 
-        // 3. 디지털 시간 표시 정보
-        const ampm = hours >= 12 ? '오후' : '오전';
-        const displayHours = String(hours % 12 || 12).padStart(2, '0');
-        const displayMinutes = String(minutes).padStart(2, '0');
-        const displaySeconds = String(seconds).padStart(2, '0');
+        // 디지털 시간 매핑
+        const ampmStr = hrs >= 12 ? '오후' : '오전';
+        const displayHrs = String(hrs % 12 || 12).padStart(2, '0');
+        const displayMins = String(mins).padStart(2, '0');
+        const displaySecs = String(secs).padStart(2, '0');
 
-        amPmDisplay.textContent = ampm;
-        timeDisplay.textContent = `${displayHours}:${displayMinutes}:${displaySeconds}`;
+        ampmCard.textContent = ampmStr;
+        timeCard.textContent = `${displayHrs}:${displayMins}:${displaySecs}`;
+
+        // 브라우저 프레임 드랍 없이 부드러운 애니메이션을 보장하는 최적화 API 사용
+        requestAnimationFrame(renderNaverClock);
     }
 
-    // 시계가 끊김 없이 실시간으로 움직이도록 20밀리초마다 갱신
-    setInterval(updateClock, 20);
-    
-    // 페이지 로드 시 즉시 한 번 실행
-    updateClock();
+    // 초기 실행 구동
+    requestAnimationFrame(renderNaverClock);
 </script>
 
 </body>
