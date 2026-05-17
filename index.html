@@ -3,244 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>네이버 시계 완벽 클론</title>
+    <title>네이버 시계 스타일</title>
     <style>
-        /* 네이버 기본 베이스 스타일 */
-        * {
+        body {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f6fa;
             font-family: -apple-system, BlinkMacSystemFont, "Malgun Gothic", Dotum, sans-serif;
         }
-        body {
-            background-color: #f4f6fa;
+
+        .clock-container {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 20px;
+            background: #ffffff;
+            border: 1px solid #e3e5e9;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            width: 320px;
         }
 
-        /* [카피 포인트 1] 네이버 시계 실제 프레임 박스 */
-        .naver-clock-box {
-            width: 356px;
-            background-color: #202022; /* 네이버 특유의 짙은 차콜/블랙 배경 */
-            border-radius: 16px;
-            padding: 24px 20px 20px 20px;
-            box-shadow: 0 4px 16px 0 rgba(0,0,0,0.07);
-            color: #ffffff;
-            text-align: center;
+        /* 아날로그 시계 판 */
+        .analog-clock {
             position: relative;
+            width: 200px;
+            height: 200px;
+            border: 10px solid #03c75a; /* 네이버 시그니처 그린 */
+            border-radius: 50%;
+            background: #ffffff;
+            margin-bottom: 25px;
         }
 
-        /* 상단 타이틀 영역 */
-        .clock-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-            padding: 0 4px;
+        /* 시계 중심점 */
+        .analog-clock::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #202020;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
         }
-        .clock-header .logo {
-            font-size: 13px;
-            font-weight: 800;
-            color: #03cf5d; /* 네이버 그린 */
-            letter-spacing: -0.5px;
+
+        /* 시계 바늘 공통 */
+        .hand {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            transform-origin: bottom center;
+            border-radius: 4px;
+            transition: transform 0.05s linear; /* 부드러운 움직임을 위한 처리 */
         }
-        .clock-header .date {
-            font-size: 13px;
-            color: #a0a0a2;
+
+        /* 시침 */
+        .hour-hand {
+            width: 6px;
+            height: 50px;
+            background-color: #202020;
+            margin-left: -3px;
+            z-index: 5;
+        }
+
+        /* 분침 */
+        .minute-hand {
+            width: 4px;
+            height: 75px;
+            background-color: #202020;
+            margin-left: -2px;
+            z-index: 6;
+        }
+
+        /* 초침 (네이버 특유의 얇고 붉은/오렌지 계열 초침 또는 그린) */
+        .second-hand {
+            width: 2px;
+            height: 85px;
+            background-color: #ff4f4f;
+            margin-left: -1px;
+            z-index: 7;
+        }
+
+        /* 디지털 정보 영역 */
+        .digital-info {
+            text-align: center;
+        }
+
+        .date-display {
+            font-size: 14px;
+            color: #777777;
+            margin-bottom: 5px;
             font-weight: 500;
         }
 
-        /* [카피 포인트 2] 메인 시간 출력부 (정밀 서체) */
-        .clock-body {
-            font-size: 46px;
-            font-weight: 700;
-            line-height: 1;
-            letter-spacing: 0px;
-            /* 숫자가 바뀔 때 가로폭이 미세하게 변하지 않도록 폰트 셋팅 */
-            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-            margin-bottom: 22px;
-            color: #ffffff;
+        .time-display {
+            font-size: 32px;
+            font-weight: bold;
+            color: #101010;
+            letter-spacing: -1px;
         }
 
-        /* [카피 포인트 3] 하단 초 단위 프로그레스 바 */
-        .progress-container {
-            width: 100%;
-            height: 4px;
-            background-color: #3a3a3c;
-            border-radius: 2px;
-            overflow: hidden;
+        .am-pm {
+            font-size: 18px;
+            font-weight: normal;
+            color: #03c75a;
+            margin-right: 5px;
         }
-        .progress-bar {
-            width: 0%; /* 자바스크립트로 초마다 변경 */
-            height: 100%;
-            background-color: #03cf5d;
-            transition: width 0.1s linear; /* 부드럽게 차오르는 애니메이션 효과 */
-        }
-
-        /* -------------------------------------------------- */
-        /* 시간 조작용 제어판 (디자인 조화를 위해 하단 배치) */
-        /* -------------------------------------------------- */
-        .control-panel {
-            width: 356px;
-            background-color: #ffffff;
-            border: 1px solid #e3e5e9;
-            border-radius: 12px;
-            margin-top: 16px;
-            padding: 16px;
-            box-shadow: 0 2px 8px 0 rgba(0,0,0,0.04);
-        }
-        .control-title {
-            font-size: 12px;
-            font-weight: 700;
-            color: #555558;
-            margin-bottom: 8px;
-        }
-        .input-group {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 8px;
-        }
-        .input-group input {
-            flex: 1;
-            padding: 8px 10px;
-            border: 1px solid #ced2d9;
-            border-radius: 6px;
-            font-size: 13px;
-            outline: none;
-            color: #333;
-        }
-        .input-group input:focus {
-            border-color: #03cf5d;
-        }
-        .btn-group {
-            display: flex;
-            gap: 6px;
-        }
-        .btn {
-            flex: 1;
-            padding: 9px;
-            border: none;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            text-align: center;
-        }
-        .btn-apply {
-            background-color: #03cf5d;
-            color: #ffffff;
-        }
-        .btn-apply:hover { background-color: #02b651; }
-        .btn-reset {
-            background-color: #f0f2f5;
-            color: #555558;
-            border: 1px solid #d3d5da;
-        }
-        .btn-reset:hover { background-color: #e4e6ea; }
     </style>
 </head>
 <body>
 
-    <!-- 네이버 시계 컴포넌트 완벽 카피 외형 -->
-    <div class="naver-clock-box">
-        <div class="clock-header">
-            <span class="logo">NAVER 시계</span>
-            <!-- 년. 월. 일. (요일) 형식 맞춤 -->
-            <span class="date" id="naverDate">0000.00.00.(요일)</span>
-        </div>
-        
-        <!-- 메인 시간 -->
-        <div class="clock-body" id="naverTime">00:00:00</div>
-        
-        <!-- 밑에 지나가는 초록색 게이지 바 -->
-        <div class="progress-container">
-            <div class="progress-bar" id="naverscrBar"></div>
-        </div>
+<div class="clock-container">
+    <div class="analog-clock">
+        <div class="hand hour-hand" id="hourHand"></div>
+        <div class="hand minute-hand" id="minHand"></div>
+        <div class="hand second-hand" id="secHand"></div>
     </div>
 
-    <!-- 커스텀 시간 조작 패널 -->
-    <div class="control-panel">
-        <div class="control-title">⚙️ 시계 시간 조정 (테스트용)</div>
-        <div class="input-group">
-            <input type="datetime-local" id="timeModifier">
-        </div>
-        <div class="btn-group">
-            <button class="btn btn-apply" onclick="changeTime()">시간 적용</button>
-            <button class="btn btn-reset" onclick="resetTime()">현재 시간 리셋</button>
+    <div class="digital-info">
+        <div class="date-display" id="dateDisplay">2026. 05. 17. (일)</div>
+        <div class="time-display">
+            <span class="am-pm" id="amPmDisplay">오후</span><span id="timeDisplay">09:30:00</span>
         </div>
     </div>
+</div>
 
-    <script>
-        let timeDifference = 0; 
-        let isModified = false; 
+<script>
+    const hourHand = document.getElementById('hourHand');
+    const minHand = document.getElementById('minHand');
+    const secHand = document.getElementById('secHand');
+    
+    const dateDisplay = document.getElementById('dateDisplay');
+    const amPmDisplay = document.getElementById('amPmDisplay');
+    const timeDisplay = document.getElementById('timeDisplay');
 
-        function fillZero(value) {
-            return String(value).padStart(2, '0');
-        }
+    function updateClock() {
+        const now = new Date();
+        
+        // 현재 시간 데이터 추출
+        const hours = now.getHours();
+        const minutes = now.getMinutes();
+        const seconds = now.getSeconds();
+        const milliseconds = now.getMilliseconds();
 
-        // 시계가 굴러가는 메인 함수 (주기를 1초가 아니라 0.1초 단위로 쪼개어 정밀도 향상)
-        function runNaverClock() {
-            let now = new Date();
+        // 1. 아날로그 시계 바늘 각도 계산 (밀리초를 더해 끊기지 않고 부드럽게 흐르도록 설정)
+        const secAngle = (seconds * 6) + (milliseconds * 0.006);
+        const minAngle = (minutes * 6) + (seconds * 0.1);
+        const hourAngle = ((hours % 12) * 30) + (minutes * 0.5);
 
-            if (isModified) {
-                now = new Date(Date.now() + timeDifference);
-            }
+        hourHand.style.transform = `translateX(-50%) rotate(${hourAngle}deg)`;
+        minHand.style.transform = `translateX(-50%) rotate(${minAngle}deg)`;
+        secHand.style.transform = `translateX(-50%) rotate(${secAngle}deg)`;
 
-            // 1. 날짜 가공 (네이버 포맷: YYYY.MM.DD.요일)
-            const yyyy = now.getFullYear();
-            const mm = fillZero(now.getMonth() + 1);
-            const dd = fillZero(now.getDate());
-            const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
-            const dayOfWeek = dayNames[now.getDay()];
-            
-            document.getElementById('naverDate').textContent = `${yyyy}.${mm}.${dd}.(${dayOfWeek})`;
+        // 2. 디지털 날짜 표시 정보
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const date = String(now.getDate()).padStart(2, '0');
+        
+        const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
+        const dayOfWeek = weekDays[now.getDay()];
+        
+        dateDisplay.textContent = `${year}. ${month}. ${date}. (${dayOfWeek})`;
 
-            // 2. 시간 가공 (HH:MM:SS)
-            const hh = fillZero(now.getHours());
-            const mi = fillZero(now.getMinutes());
-            const ss = fillZero(now.getSeconds());
+        // 3. 디지털 시간 표시 정보
+        const ampm = hours >= 12 ? '오후' : '오전';
+        const displayHours = String(hours % 12 || 12).padStart(2, '0');
+        const displayMinutes = String(minutes).padStart(2, '0');
+        const displaySeconds = String(seconds).padStart(2, '0');
 
-            document.getElementById('naverTime').textContent = `${hh}:${mi}:${ss}`;
+        amPmDisplay.textContent = ampm;
+        timeDisplay.textContent = `${displayHours}:${displayMinutes}:${displaySeconds}`;
+    }
 
-            // 3. [핵심] 초록색 바가 차오르는 계산 (1초 = 100%)
-            // 밀리초(ms) 데이터를 활용해 바가 끊기지 않고 부드럽게 흐르도록 구현
-            const ms = now.getMilliseconds();
-            const progressPercent = (ms / 1000) * 100;
-            document.getElementById('naverscrBar').style.width = `${progressPercent}%`;
-        }
+    // 시계가 끊김 없이 실시간으로 움직이도록 20밀리초마다 갱신
+    setInterval(updateClock, 20);
+    
+    // 페이지 로드 시 즉시 한 번 실행
+    updateClock();
+</script>
 
-        // 사용자가 지정한 시간으로 타임워프하는 함수
-        function changeTime() {
-            const userDateTime = document.getElementById('timeModifier').value;
-            if (!userDateTime) {
-                alert('변경할 시각을 선택해 주세요!');
-                return;
-            }
-
-            const targetDateTime = new Date(userDateTime);
-            const realCurrentTime = new Date();
-
-            timeDifference = targetDateTime.getTime() - realCurrentTime.getTime();
-            isModified = true;
-
-            runNaverClock();
-        }
-
-        // 실제 현재 서버 시간(로컬)으로 원상복구
-        function resetTime() {
-            isModified = false;
-            timeDifference = 0;
-            document.getElementById('timeModifier').value = '';
-            runNaverClock();
-        }
-
-        // 네이버 시계의 부드러운 바 움직임을 위해 0.05초(50ms)마다 인터벌을 돌립니다.
-        setInterval(runNaverClock, 50);
-        runNaverClock();
-    </script>
 </body>
 </html>
